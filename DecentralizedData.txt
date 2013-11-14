@@ -1,0 +1,54 @@
+DECENTRALIZED DATA
+
+D1. A Field Definition is a triple (<label>, <type>, <default>).  <label> is a string or some other identifier.  <type> is a specification for a data type.  <default> is a value-generating expression which, when evaluated, returns a value compatible with type.  For a given field defintion fd, fd.label, fd.type and fd.default denote each of the constituents of fd.
+
+D2. A Variety is a set field definitions each of whose label is unique within the variety.  Given a variety V, V.<label> denotes the field definition fd from V where fd.label = <label>, provided that such an fd exists.
+
+D3. A Fact F is a set of values organized according to a particular Variety.  The variety that organizes a fact F is denoted by Variety[F].  F's members are in a direct correspondence to the members of Variety[F], and the type of each member of F is compatible with the type specification in its corresponding field definition.  Given a fact F, F.<label> denotes the value (also called field) from F associated with the field definition fd from Variety[F] where fd.label = <label>, provided that such an fd exists.
+
+D4. A Factual Domain organizes facts through one or more runtime agencies, each runtime agency pfd of which defines these languages:
+
+  - a query langauge denoted by QL[pfd]
+  - a value specification language denoted by VL[pfd, V] for any variety V
+
+  and which supports these operations:
+
+  1. Observation.  Given <q> from QL[pfd], return a sequence of already-asserted facts observed with pfd using <q>.
+  2. Assertion.  Given <vs> from VL[pfd, V], assert a fact according to <vs>.
+     <vs> must specify all or a subset of the values for the particular fields of the fact.
+     Values unspecified by <vs>, if any, are generated using their default expressions taken from V.
+     Default expressions are required to exist for unspecified values.
+     The asserted fact contains the specified values plus any generated values.
+
+D5. With respect to a factual domain FD, an Identity for a fact F is a query <q> from QL[pfd] for some runtime agency pfd of FD such that an observation with pfd using <q> yields just F.
+
+D6. Validations form a partition of a class of computations from a sequence of facts to a Boolean.
+
+D7.  A fact V is a Validation if, given a factual domain and a validation computation, V has the following fields:
+  - "context" whose value represents an identity for a fact.
+  - "result" whose value represents the validation computation.
+  - "observations" whose value represents a sequence of observations for each query and each assertion declared relevant to V's creation.  Assertion observations are formed from an identity for the asserted fact and the asserted fact.
+
+~~~~~~~~
+  Each Validation V also possesses a runtime agency that supports a validation operation.  Validate C according to some alorithm A from VALIDATION, returning the resulting Validation fact.
+     The system runs A on C and asserts a new Validation fact which is a copy of C except:
+     - the value of the "context" field is set to an identity for C.
+     - the value of the "result" field is set to an identity for FAIL if the result of running A with C is false, otherwise to an identity for A.
+     - the value of the "observations" field is set to the new observations at the time of assertion.
+     This operation is denoted by C!A or, if C is understood, !A.
+
+Example Elements of VALIDATION
+
+FAIL: f => false
+
+EMPTY: f => true
+
+UNIFORM: f => f match {
+  case c: Context => [[<<observations now>> the same as c.observations]]
+  case _ => true
+}
+
+CONSISTENT: f => f match {
+  case c: Context => [[<<observations now>> are consistent with c.observations]]
+  case _ => true
+}
